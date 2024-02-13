@@ -18,27 +18,28 @@ protected:
   char name[NETMANAGER_MDNS_NAME_MAX_LENGTH]; 
   uint8_t mac[6];
   virtual void connect()=0;
-  virtual void getMac();
+  virtual void getMac()=0;
   void shortDelay() {
     randomSeed(micros());
     delay(1000 + random(1000));
   }
 public:
 
-  void begin(char * name, uint8_t appendMacValues=0) {
-
+  void begin(char * newname, uint8_t appendMacValues=0) {
+    LOG("NetworkManager", "Getting MAC");
     getMac();
-
+    
     appendMacValues = constrain(appendMacValues,0,6);
-    size_t nameLength = min(strlen(name), (size_t)(NETMANAGER_MDNS_NAME_MAX_LENGTH - 1 - (appendMacValues*2)) );
+    size_t nameLength = min(strlen(newname), (size_t)(NETMANAGER_MDNS_NAME_MAX_LENGTH - 1 - (appendMacValues*2)) );
     // copy the prefix
-    strncpy(this->name, name, nameLength);
+    strncpy(this->name, newname, nameLength);
     char * appendPointer = this->name + nameLength;
     for ( int i =0 ; i < appendMacValues; i++ ) {
+		
       sprintf(appendPointer , "%2x", mac[i+(6-appendMacValues)] );
       appendPointer += 2;
     }
-
+  LOG("NetworkManager", "Name:", this->name);
     connect();
   }
 
