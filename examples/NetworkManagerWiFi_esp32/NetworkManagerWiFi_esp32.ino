@@ -32,7 +32,7 @@ void setup() {
   // Start NetworkManager (with Ethernet or WiFi as set by the include)
   LOG("Starting NetworkManager");
   // This will loop until the DHCP server is found
-  NetworkManager.begin("esp-", 3); // Start with the name ESP- as the prefix, followed by the three last values of the MAC address
+  NetworkManager.begin("esp-", 3); // Start with "esp-" as a prefi, followed by the three last values of the MAC address
 
   // Resolve the IP of the REMOTE_NAME
   LOG("Attempting to resolve remote name");
@@ -58,15 +58,7 @@ void setup() {
 *****************/
 void myOnOscMessageReceived(MicroOscMessage& oscMessage) {
 
-  // CHECK THE ADDRESS OF THE OSC MESSAGE
-  if (oscMessage.checkOscAddress("/pixel")) {
-
-    int red = oscMessage.nextAsInt();
-    int green = oscMessage.nextAsInt();
-    int blue = oscMessage.nextAsInt();
-    embeddedPixel = CRGB(red, green, blue);
-    FastLED.show();
-  }
+  LOG("Received an OSC message");
 }
 
 /*******
