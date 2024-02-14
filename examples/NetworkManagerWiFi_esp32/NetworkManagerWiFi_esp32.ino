@@ -7,16 +7,12 @@
 
 #define MY_PORT 7000
 #define REMOTE_PORT 8000
-#define REMOTE_NAME "B1387-00"
+#define REMOTE_NAME "MSI"
 
-#include <M5Atom.h>
 
-CRGB embeddedPixel;
+#include <NetworkManagerWiFi.h>
 
-#include <NetworkManagerEthernet.h>
-
-EthernetUDP myUdp;
-
+WiFiUDP myUdp;
 
 MicroOscUdp<1024> myMicroOsc(&myUdp);
 
@@ -28,30 +24,15 @@ unsigned long myChronoStart = 0;  // VARIABLE USED TO LIMIT THE SPEED OF THE SEN
 *********/
 void setup() {
 
-  M5.begin(false, false, false);
 
   Serial.begin(115200);
-
-  FastLED.addLeds<WS2812, DATA_PIN, GRB>(&embeddedPixel, 1);
-  // Animation de démarrage
-  while (millis() < 5000) {
-    embeddedPixel = CHSV((millis() / 5) % 255, 255, 255 - (millis() * 255 / 5000));
-    FastLED.show();
-    delay(50);
-  }
-
-  // Show red pixel as the device is getting ready to connect
-  embeddedPixel = CRGB(255, 255, 0);
-  FastLED.show();
-
-  // CONFIGURE ATOM POE ETHERNET
-  SPI.begin(22, 23, 33, 19);
-  Ethernet.init(19);
+  
+  delay(2000);
 
   // Start NetworkManager (with Ethernet or WiFi as set by the include)
-  LOG("Starting NeworkManager");
+  LOG("Starting NetworkManager");
   // This will loop until the DHCP server is found
-  NetworkManager.begin("ESP-", 3); // Start with the name ESP- as the prefix, followed by the three last values of the MAC address
+  NetworkManager.begin("esp-", 3); // Start with the name ESP- as the prefix, followed by the three last values of the MAC address
 
   // Resolve the IP of the REMOTE_NAME
   LOG("Attempting to resolve remote name");
@@ -62,8 +43,6 @@ void setup() {
   LOG("Setting OSC destination to", remoteIp, REMOTE_PORT);
   myMicroOsc.setDestination(remoteIp, REMOTE_PORT);
 
-  embeddedPixel = CRGB(0, 255, 0);
-  FastLED.show();
 
   LOG("Starting UDP");
   myUdp.begin(MY_PORT);
@@ -94,8 +73,6 @@ void myOnOscMessageReceived(MicroOscMessage& oscMessage) {
   LOOP
 ********/
 void loop() {
-
-  M5.update();
 
   NetworkManager.update();
 
