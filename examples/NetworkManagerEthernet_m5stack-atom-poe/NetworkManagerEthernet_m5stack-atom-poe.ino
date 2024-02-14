@@ -1,25 +1,26 @@
 
+// This example requieres MicroOsc version 0.1.7 or higher
+
 #define MY_PORT 7000
 #define REMOTE_PORT 8000
-#define REMOTE_NAME "MSI"
+#define REMOTE_NAME "B1387-00"
 
 #include <M5Atom.h>
 
 CRGB embeddedPixel;
 
+// MicroLog can be found here : https://github.com/thomasfredericks/MicroLog
+#include <MicroLog.h>
+
 #include <NetworkManagerEthernet.h>
 
 EthernetUDP myUdp;
 
-#include <MicroLog.h>
+
 
 #include <MicroOscUdp.h>
 
-// THE NUMBER 1024 BETWEEN THE < > SYMBOLS  BELOW IS THE MAXIMUM NUMBER OF BYTES RESERVED FOR INCOMMING MESSAGES.
-// OUTGOING MESSAGES ARE WRITTEN DIRECTLY TO THE OUTPUT AND DO NOT NEED ANY RESERVED BYTES.
-// PROVIDE A POINTER TO UDP, AND THE IP AND PORT FOR OUTGOING MESSAGES.
-// DO NOT FORGET THAT THE UDP CONNEXION MUST BE INITIALIZED IN SETUP() WITH THE RECEIVE PORT.
-// WE ARE INITIALIZING WITH nullIp AS IT WILL BE CHANGED LATER.
+// Requires MicroOsc version 0.1.7 or higher
 MicroOscUdp<1024> myMicroOsc(&myUdp);
 
 unsigned long myChronoStart = 0;  // VARIABLE USED TO LIMIT THE SPEED OF THE SENDING OF OSC MESSAGES
@@ -52,22 +53,16 @@ void setup() {
 
   // Start NetworkManager (with Ethernet or WiFi as set by the include)
   LOG("Starting NeworkManager");
+  // This will loop until the DHCP server is found
   NetworkManager.begin("ESP-", 3); // Start with the name ESP- as the prefix, followed by the three last values of the MAC address
 
   // Resolve the IP of the REMOTE_NAME
   LOG("Attempting to resolve remote name");
   IPAddress remoteIp = NetworkManager.resolveName(REMOTE_NAME);
 
-  // If remoteIp is invalid, show a red pixel and stop
-  if (remoteIp == INADDR_NONE) {
-    embeddedPixel = CRGB(255, 0, 0);
-    FastLED.show();
-    while (true) {};
-  }
-
   LOG("Found", REMOTE_NAME, "at", remoteIp);
 
-  LOG("Setting OSC destination");
+  LOG("Setting OSC destination to", remoteIp, REMOTE_PORT);
   myMicroOsc.setDestination(remoteIp, REMOTE_PORT);
 
   embeddedPixel = CRGB(0, 255, 0);
